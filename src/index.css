@@ -1,0 +1,71 @@
+:root {
+  --cream: #fffaf3;
+  --cream-deep: #fef2e4;
+  --peach: #ffd9b8;
+  --peach-deep: #ffb98a;
+  --coral: #ff9a76;
+  --coral-deep: #f27d54;
+  --sage: #d8ead9;
+  --sage-deep: #9bc4a0;
+  --sky: #d7e8ee;
+  --sky-deep: #a9cddb;
+  --blush: #ffe1e1;
+
+  --text: #4a3b32;
+  --text-soft: #8a7a6d;
+  --text-on-dark: #fffaf3;
+  --surface: #ffffff;
+  --border: #f1e2cf;
+  --shadow-soft: 0 8px 24px rgba(154, 110, 66, 0.1);
+  --shadow-lift: 0 14px 32px rgba(154, 110, 66, 0.16);
+  --radius-lg: 28px;
+  --radius-md: 18px;
+  --radius-sm: 12px;
+
+  --heading: 'Quicksand', 'Segoe UI', system-ui, sans-serif;
+  --sans: 'Nunito Sans', 'Segoe UI', system-ui, sans-serif;
+
+  color-scheme: light;
+  color: var(--text);
+  background: var(--cream);
+  font: 16px/1.55 var(--sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100svh;
+  background:
+    radial-gradient(circle at 15% -10%, var(--cream-deep) 0%, transparent 45%),
+    radial-gradient(circle at 100% 10%, var(--blush) 0%, transparent 40%),
+    var(--cream);
+}
+
+h1, h2, h3 {
+  font-family: var(--heading);
+  color: var(--text);
+  margin: 0;
+}
+
+p {
+  margin: 0;
+}
+
+ul {
+  margin: 0;
+  padding: 0;
+}
+
+button {
+  font-family: var(--sans);
+  cursor: pointer;
+}
+
+input {
+  font-family: var(--sans);
+}
