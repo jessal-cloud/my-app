@@ -5,10 +5,27 @@ function todayStr() {
   return d.toISOString().slice(0, 10)
 }
 
-function HomeScreen({ onSave, initial }) {
+const COPY = {
+  welcome: {
+    title: 'Little Steps',
+    subtitle: "Gentle, stage-by-stage guidance for your baby's first 26 months.",
+  },
+  add: {
+    title: 'Add a child',
+    subtitle: "Enter their name and birthdate to see their stage.",
+  },
+  edit: {
+    title: 'Edit details',
+    subtitle: "Update your child's name or birthdate.",
+  },
+}
+
+function HomeScreen({ onSave, onCancel, initial, mode = 'welcome' }) {
   const [name, setName] = useState(initial?.name ?? '')
   const [birthDate, setBirthDate] = useState(initial?.birthDate ?? '')
   const [error, setError] = useState('')
+
+  const { title, subtitle } = COPY[mode] ?? COPY.welcome
 
   function handleSubmit(e) {
     e.preventDefault()
@@ -33,10 +50,8 @@ function HomeScreen({ onSave, initial }) {
     <div className="home-screen">
       <div className="home-card">
         <div className="home-blob" aria-hidden="true" />
-        <h1 className="home-title">Little Steps</h1>
-        <p className="home-subtitle">
-          Gentle, stage-by-stage guidance for your baby's first 26 months.
-        </p>
+        <h1 className="home-title">{title}</h1>
+        <p className="home-subtitle">{subtitle}</p>
 
         <form className="home-form" onSubmit={handleSubmit}>
           <label className="field">
@@ -63,8 +78,16 @@ function HomeScreen({ onSave, initial }) {
           {error && <p className="form-error">{error}</p>}
 
           <button type="submit" className="primary-button">
-            See {name.trim() ? `${name.trim()}'s` : "my baby's"} stage
+            {mode === 'edit'
+              ? 'Save changes'
+              : `See ${name.trim() ? `${name.trim()}'s` : "my baby's"} stage`}
           </button>
+
+          {onCancel && (
+            <button type="button" className="text-button" onClick={onCancel}>
+              Cancel
+            </button>
+          )}
         </form>
       </div>
     </div>

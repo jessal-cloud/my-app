@@ -3,8 +3,9 @@ import { stages } from '../data/stages'
 import { getAgeBreakdown, formatAgeLabel, findStageForMonths } from '../utils/age'
 import StageDetail from './StageDetail'
 import StageBrowser from './StageBrowser'
+import ChildSwitcher from './ChildSwitcher'
 
-function Dashboard({ baby, onEditRequest }) {
+function Dashboard({ baby, babies, onSwitch, onAddChild, onEditRequest, onRemove }) {
   const [view, setView] = useState('now')
   const [selectedId, setSelectedId] = useState(null)
 
@@ -26,8 +27,16 @@ function Dashboard({ baby, onEditRequest }) {
     setView('now')
   }
 
+  function handleRemove() {
+    if (window.confirm(`Remove ${baby.name} from Little Steps? This can't be undone.`)) {
+      onRemove(baby.id)
+    }
+  }
+
   return (
     <div className="dashboard">
+      <ChildSwitcher babies={babies} activeId={baby.id} onSwitch={onSwitch} onAddChild={onAddChild} />
+
       <header className="dashboard-header">
         <div>
           <p className="dashboard-eyebrow">Hello, {baby.name}'s grown-up 👋</p>
@@ -36,9 +45,14 @@ function Dashboard({ baby, onEditRequest }) {
             {ageInfo.isFuture ? 'Due soon — welcome, when the time comes!' : formatAgeLabel(ageInfo)}
           </p>
         </div>
-        <button type="button" className="ghost-button" onClick={onEditRequest}>
-          Edit details
-        </button>
+        <div className="header-actions">
+          <button type="button" className="ghost-button" onClick={onEditRequest}>
+            Edit details
+          </button>
+          <button type="button" className="ghost-button danger" onClick={handleRemove}>
+            Remove
+          </button>
+        </div>
       </header>
 
       <nav className="tab-row">

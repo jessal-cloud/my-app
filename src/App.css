@@ -133,6 +133,67 @@
   color: var(--coral-deep);
 }
 
+.ghost-button.danger:hover {
+  border-color: #c9483a;
+  color: #c9483a;
+}
+
+.header-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.text-button {
+  border: none;
+  background: none;
+  color: var(--text-soft);
+  font-weight: 700;
+  font-size: 13px;
+  padding: 4px;
+  text-align: center;
+}
+
+.text-button:hover {
+  color: var(--text);
+  text-decoration: underline;
+}
+
+/* ---------- Child switcher ---------- */
+
+.child-switcher {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.child-pill {
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 700;
+  font-size: 13px;
+  padding: 8px 16px;
+  border-radius: 999px;
+}
+
+.child-pill:hover {
+  border-color: var(--coral-deep);
+}
+
+.child-pill.selected {
+  background: linear-gradient(135deg, var(--sage), var(--sage-deep));
+  border-color: transparent;
+  color: #2f4f35;
+}
+
+.child-pill.add {
+  border-style: dashed;
+  color: var(--text-soft);
+  background: transparent;
+}
+
 /* ---------- Dashboard ---------- */
 
 .dashboard-header {
