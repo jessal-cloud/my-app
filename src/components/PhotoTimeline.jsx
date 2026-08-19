@@ -35,6 +35,7 @@ function PhotoTimeline({ baby }) {
   const currentStage = findStageForMonths(stages, getAgeBreakdown(baby.birthDate).months)
   const [stageId, setStageId] = useState(currentStage?.id ?? stages[0].id)
   const [file, setFile] = useState(null)
+  const [caption, setCaption] = useState('')
   const [error, setError] = useState('')
   const [lightboxId, setLightboxId] = useState(null)
   const fileInputRef = useRef(null)
@@ -91,12 +92,14 @@ function PhotoTimeline({ baby }) {
       mode,
       dateTaken: mode === 'date' ? dateTaken : null,
       stageId: mode === 'stage' ? stageId : null,
+      caption: caption.trim() || null,
       createdAt: Date.now(),
       blob: file,
     }
     await addPhoto(photo)
     setPhotos((prev) => [...prev, { ...photo, url: URL.createObjectURL(file) }])
     setFile(null)
+    setCaption('')
     if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
@@ -125,6 +128,17 @@ function PhotoTimeline({ baby }) {
             type="file"
             accept="image/*"
             onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+          />
+        </label>
+
+        <label className="field photo-field photo-caption-field">
+          <span>Caption (optional)</span>
+          <input
+            type="text"
+            value={caption}
+            maxLength={80}
+            placeholder="e.g. First trip to the park"
+            onChange={(e) => setCaption(e.target.value)}
           />
         </label>
 
@@ -188,8 +202,9 @@ function PhotoTimeline({ baby }) {
               className="photo-card"
               onClick={() => setLightboxId(photo.id)}
             >
-              <img src={photo.url} alt={labelForPhoto(photo)} className="photo-thumb" />
-              <span className="photo-caption">{labelForPhoto(photo)}</span>
+              <img src={photo.url} alt={photo.caption || labelForPhoto(photo)} className="photo-thumb" />
+              {photo.caption && <span className="photo-user-caption">{photo.caption}</span>}
+              <span className="photo-meta">{labelForPhoto(photo)}</span>
             </button>
           ))}
         </div>
@@ -198,9 +213,12 @@ function PhotoTimeline({ baby }) {
       {lightboxPhoto && (
         <div className="photo-lightbox" onClick={() => setLightboxId(null)}>
           <div className="photo-lightbox-content" onClick={(e) => e.stopPropagation()}>
-            <img src={lightboxPhoto.url} alt={labelForPhoto(lightboxPhoto)} />
+            <img src={lightboxPhoto.url} alt={lightboxPhoto.caption || labelForPhoto(lightboxPhoto)} />
             <div className="photo-lightbox-footer">
-              <span>{labelForPhoto(lightboxPhoto)}</span>
+              <div className="photo-lightbox-text">
+                {lightboxPhoto.caption && <strong className="photo-user-caption">{lightboxPhoto.caption}</strong>}
+                <span className="photo-meta">{labelForPhoto(lightboxPhoto)}</span>
+              </div>
               <div className="photo-lightbox-actions">
                 <button type="button" className="text-button" onClick={() => handleDelete(lightboxPhoto.id)}>
                   Delete

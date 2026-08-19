@@ -744,6 +744,21 @@
   width: 100%;
 }
 
+.photo-field input[type='text'] {
+  font-size: 14px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border);
+  background: var(--cream);
+  color: var(--text);
+  outline: none;
+  width: 100%;
+}
+
+.photo-caption-field {
+  flex: 1 1 220px;
+}
+
 .photo-field input:focus,
 .photo-field select:focus {
   border-color: var(--coral-deep);
@@ -817,8 +832,16 @@
   background: var(--cream);
 }
 
-.photo-caption {
-  font-size: 12px;
+.photo-user-caption {
+  font-size: 13px;
+  color: var(--text);
+  font-weight: 700;
+  padding: 0 4px;
+  line-height: 1.3;
+}
+
+.photo-meta {
+  font-size: 11.5px;
   color: var(--text-soft);
   font-weight: 600;
   padding: 0 4px 4px;
@@ -861,10 +884,20 @@
   flex-wrap: wrap;
 }
 
-.photo-lightbox-footer span {
-  font-size: 13.5px;
-  font-weight: 700;
-  color: var(--text);
+.photo-lightbox-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.photo-lightbox-text .photo-user-caption {
+  font-size: 15px;
+  padding: 0;
+}
+
+.photo-lightbox-text .photo-meta {
+  font-size: 12.5px;
+  padding: 0;
 }
 
 .photo-lightbox-actions {
