@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { stages } from '../data/stages'
 import { getAgeBreakdown, formatAgeLabel, findStageForMonths } from '../utils/age'
+import { usePhotos } from '../hooks/usePhotos'
 import StageDetail from './StageDetail'
 import StageBrowser from './StageBrowser'
 import ChildSwitcher from './ChildSwitcher'
@@ -10,6 +11,7 @@ import PhotoTimeline from './PhotoTimeline'
 function Dashboard({ baby, babies, onSwitch, onAddChild, onEditRequest, onRemove, onUpdateGrowth }) {
   const [view, setView] = useState('now')
   const [selectedId, setSelectedId] = useState(null)
+  const [photoPrefillStageId, setPhotoPrefillStageId] = useState(null)
 
   const ageInfo = useMemo(() => getAgeBreakdown(baby.birthDate), [baby.birthDate])
   const currentStage = useMemo(() => findStageForMonths(stages, ageInfo.months), [ageInfo.months])
@@ -19,6 +21,8 @@ function Dashboard({ baby, babies, onSwitch, onAddChild, onEditRequest, onRemove
   const activeStageId = selectedId ?? currentStage?.id ?? null
   const activeStage = stages.find((s) => s.id === activeStageId) ?? currentStage ?? null
 
+  const { photos, loading: photosLoading, add: addPhoto, remove: removePhoto } = usePhotos(baby.id)
+
   function handleSelectStage(id) {
     setSelectedId(id)
     setView('browse')
@@ -27,6 +31,16 @@ function Dashboard({ baby, babies, onSwitch, onAddChild, onEditRequest, onRemove
   function goToToday() {
     setSelectedId(null)
     setView('now')
+  }
+
+  function handleOpenPhotos() {
+    setPhotoPrefillStageId(null)
+    setView('photos')
+  }
+
+  function handleAddPhotoForStage(stageId) {
+    setPhotoPrefillStageId(stageId)
+    setView('photos')
   }
 
   function handleRemove() {
@@ -82,7 +96,7 @@ function Dashboard({ baby, babies, onSwitch, onAddChild, onEditRequest, onRemove
         <button
           type="button"
           className={`tab-button${view === 'photos' ? ' active' : ''}`}
-          onClick={() => setView('photos')}
+          onClick={handleOpenPhotos}
         >
           Photos
         </button>
@@ -92,7 +106,16 @@ function Dashboard({ baby, babies, onSwitch, onAddChild, onEditRequest, onRemove
         <GrowthTracker baby={baby} entries={baby.growth ?? []} onChange={onUpdateGrowth} />
       )}
 
-      {view === 'photos' && <PhotoTimeline baby={baby} />}
+      {view === 'photos' && (
+        <PhotoTimeline
+          baby={baby}
+          photos={photos}
+          loading={photosLoading}
+          onAddPhoto={addPhoto}
+          onDeletePhoto={removePhoto}
+          initialStageId={photoPrefillStageId}
+        />
+      )}
 
       {view === 'browse' && (
         <StageBrowser
@@ -120,7 +143,15 @@ function Dashboard({ baby, babies, onSwitch, onAddChild, onEditRequest, onRemove
             {baby.name} is now past 26 months, which is as far as Little Steps' stage guides go
             for now. Here's the final stage we cover — feel free to browse any earlier stage too.
           </p>
-          <StageDetail stage={lastStage} isCurrent={false} babyName={baby.name} />
+          <StageDetail
+            stage={lastStage}
+            isCurrent={false}
+            babyName={baby.name}
+            photos={photos}
+            photosLoading={photosLoading}
+            onDeletePhoto={removePhoto}
+            onAddPhotoForStage={handleAddPhotoForStage}
+          />
         </div>
       )}
 
@@ -129,6 +160,10 @@ function Dashboard({ baby, babies, onSwitch, onAddChild, onEditRequest, onRemove
           stage={activeStage}
           isCurrent={activeStage?.id === currentStage?.id}
           babyName={baby.name}
+          photos={photos}
+          photosLoading={photosLoading}
+          onDeletePhoto={removePhoto}
+          onAddPhotoForStage={handleAddPhotoForStage}
         />
       )}
     </div>

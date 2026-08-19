@@ -1,69 +1,23 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { stages } from '../data/stages'
-import { getAgeBreakdown, formatAgeLabel, findStageForMonths } from '../utils/age'
+import { getAgeBreakdown, findStageForMonths } from '../utils/age'
 import { makeId } from '../utils/id'
-import { addPhoto, getPhotosByBaby, deletePhoto } from '../utils/photoDb'
+import { sortKeyForPhoto } from '../utils/photoLabel'
+import PhotoGallery from './PhotoGallery'
 
 function todayStr() {
   return new Date().toISOString().slice(0, 10)
 }
 
-function formatFullDate(dateStr) {
-  return new Date(dateStr).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
-}
-
-function sortKeyForPhoto(photo) {
-  if (photo.mode === 'date') return getAgeBreakdown(photo._birthDate, new Date(photo.dateTaken)).totalDays
-  const stage = stages.find((s) => s.id === photo.stageId)
-  return (stage?.minMonths ?? 0) * 30.44
-}
-
-function labelForPhoto(photo) {
-  if (photo.mode === 'date') {
-    const ageInfo = getAgeBreakdown(photo._birthDate, new Date(photo.dateTaken))
-    return `${formatAgeLabel(ageInfo)} · ${formatFullDate(photo.dateTaken)}`
-  }
-  const stage = stages.find((s) => s.id === photo.stageId)
-  return stage ? `${stage.ageLabel} · ${stage.name}` : 'Untagged'
-}
-
-function PhotoTimeline({ baby }) {
-  const [photos, setPhotos] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [mode, setMode] = useState('date')
-  const [dateTaken, setDateTaken] = useState(todayStr())
+function PhotoTimeline({ baby, photos, loading, onAddPhoto, onDeletePhoto, initialStageId }) {
   const currentStage = findStageForMonths(stages, getAgeBreakdown(baby.birthDate).months)
-  const [stageId, setStageId] = useState(currentStage?.id ?? stages[0].id)
+  const [mode, setMode] = useState(initialStageId ? 'stage' : 'date')
+  const [dateTaken, setDateTaken] = useState(todayStr())
+  const [stageId, setStageId] = useState(initialStageId ?? currentStage?.id ?? stages[0].id)
   const [file, setFile] = useState(null)
   const [caption, setCaption] = useState('')
   const [error, setError] = useState('')
-  const [lightboxId, setLightboxId] = useState(null)
   const fileInputRef = useRef(null)
-  const photosRef = useRef([])
-
-  useEffect(() => {
-    photosRef.current = photos
-  }, [photos])
-
-  useEffect(() => {
-    let cancelled = false
-    setLoading(true)
-    getPhotosByBaby(baby.id).then((records) => {
-      if (cancelled) return
-      const withUrls = records.map((r) => ({ ...r, url: URL.createObjectURL(r.blob) }))
-      setPhotos(withUrls)
-      setLoading(false)
-    })
-    return () => {
-      cancelled = true
-    }
-  }, [baby.id])
-
-  useEffect(() => {
-    return () => {
-      photosRef.current.forEach((p) => URL.revokeObjectURL(p.url))
-    }
-  }, [])
 
   async function handleAdd(e) {
     e.preventDefault()
@@ -96,19 +50,10 @@ function PhotoTimeline({ baby }) {
       createdAt: Date.now(),
       blob: file,
     }
-    await addPhoto(photo)
-    setPhotos((prev) => [...prev, { ...photo, url: URL.createObjectURL(file) }])
+    await onAddPhoto(photo, file)
     setFile(null)
     setCaption('')
     if (fileInputRef.current) fileInputRef.current.value = ''
-  }
-
-  async function handleDelete(id) {
-    const photo = photos.find((p) => p.id === id)
-    await deletePhoto(id)
-    if (photo) URL.revokeObjectURL(photo.url)
-    setPhotos((prev) => prev.filter((p) => p.id !== id))
-    setLightboxId((current) => (current === id ? null : current))
   }
 
   const decorated = useMemo(() => photos.map((p) => ({ ...p, _birthDate: baby.birthDate })), [photos, baby.birthDate])
@@ -116,7 +61,6 @@ function PhotoTimeline({ baby }) {
     () => [...decorated].sort((a, b) => sortKeyForPhoto(a) - sortKeyForPhoto(b)),
     [decorated],
   )
-  const lightboxPhoto = sorted.find((p) => p.id === lightboxId) ?? null
 
   return (
     <div className="photo-timeline">
@@ -194,42 +138,7 @@ function PhotoTimeline({ baby }) {
       ) : sorted.length === 0 ? (
         <p className="growth-placeholder">No photos yet — add {baby.name}'s first one above.</p>
       ) : (
-        <div className="photo-grid">
-          {sorted.map((photo) => (
-            <button
-              key={photo.id}
-              type="button"
-              className="photo-card"
-              onClick={() => setLightboxId(photo.id)}
-            >
-              <img src={photo.url} alt={photo.caption || labelForPhoto(photo)} className="photo-thumb" />
-              {photo.caption && <span className="photo-user-caption">{photo.caption}</span>}
-              <span className="photo-meta">{labelForPhoto(photo)}</span>
-            </button>
-          ))}
-        </div>
-      )}
-
-      {lightboxPhoto && (
-        <div className="photo-lightbox" onClick={() => setLightboxId(null)}>
-          <div className="photo-lightbox-content" onClick={(e) => e.stopPropagation()}>
-            <img src={lightboxPhoto.url} alt={lightboxPhoto.caption || labelForPhoto(lightboxPhoto)} />
-            <div className="photo-lightbox-footer">
-              <div className="photo-lightbox-text">
-                {lightboxPhoto.caption && <strong className="photo-user-caption">{lightboxPhoto.caption}</strong>}
-                <span className="photo-meta">{labelForPhoto(lightboxPhoto)}</span>
-              </div>
-              <div className="photo-lightbox-actions">
-                <button type="button" className="text-button" onClick={() => handleDelete(lightboxPhoto.id)}>
-                  Delete
-                </button>
-                <button type="button" className="ghost-button" onClick={() => setLightboxId(null)}>
-                  Close
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <PhotoGallery photos={sorted} onDelete={onDeletePhoto} />
       )}
     </div>
   )

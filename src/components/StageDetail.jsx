@@ -1,3 +1,5 @@
+import PhotoGallery from './PhotoGallery'
+
 const SECTIONS = [
   { key: 'sleep', label: 'Sleep', icon: '🌙', tone: 'sleep' },
   { key: 'feeding', label: 'Feeding', icon: '🍼', tone: 'feeding' },
@@ -5,8 +7,10 @@ const SECTIONS = [
   { key: 'safety', label: 'Safety', icon: '🛡️', tone: 'safety' },
 ]
 
-function StageDetail({ stage, isCurrent, babyName }) {
+function StageDetail({ stage, isCurrent, babyName, photos, photosLoading, onDeletePhoto, onAddPhotoForStage }) {
   if (!stage) return null
+
+  const stagePhotos = (photos ?? []).filter((p) => p.mode === 'stage' && p.stageId === stage.id)
 
   return (
     <div className="stage-detail">
@@ -34,6 +38,28 @@ function StageDetail({ stage, isCurrent, babyName }) {
           </section>
         ))}
       </div>
+
+      {onAddPhotoForStage && (
+        <section className="stage-photos">
+          <h3 className="stage-photos-title">Photos from this stage</h3>
+          {photosLoading ? (
+            <p className="growth-placeholder">Loading photos…</p>
+          ) : stagePhotos.length === 0 ? (
+            <div className="stage-photos-empty">
+              <p>No photos tagged to {stage.ageLabel} yet.</p>
+              <button
+                type="button"
+                className="primary-button"
+                onClick={() => onAddPhotoForStage(stage.id)}
+              >
+                Add a photo
+              </button>
+            </div>
+          ) : (
+            <PhotoGallery photos={stagePhotos} onDelete={onDeletePhoto} />
+          )}
+        </section>
+      )}
     </div>
   )
 }
