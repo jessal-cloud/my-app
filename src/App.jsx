@@ -2,15 +2,11 @@ import { useEffect, useState } from 'react'
 import HomeScreen from './components/HomeScreen'
 import Dashboard from './components/Dashboard'
 import Disclaimer from './components/Disclaimer'
+import { makeId } from './utils/id'
 import './App.css'
 
 const BABIES_KEY = 'little-steps-babies'
 const ACTIVE_KEY = 'little-steps-active-id'
-
-function makeId() {
-  if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID()
-  return `baby-${Date.now()}-${Math.random().toString(16).slice(2)}`
-}
 
 function App() {
   const [babies, setBabies] = useState([])
@@ -43,7 +39,7 @@ function App() {
       setBabies(next)
       persist(next, activeId)
     } else {
-      const newBaby = { id: makeId(), ...data }
+      const newBaby = { id: makeId(), growth: [], ...data }
       const next = [...babies, newBaby]
       setBabies(next)
       setActiveId(newBaby.id)
@@ -55,6 +51,12 @@ function App() {
   function handleSwitch(id) {
     setActiveId(id)
     localStorage.setItem(ACTIVE_KEY, id)
+  }
+
+  function handleUpdateGrowth(babyId, growth) {
+    const next = babies.map((b) => (b.id === babyId ? { ...b, growth } : b))
+    setBabies(next)
+    persist(next, activeId)
   }
 
   function handleRemove(id) {
@@ -91,6 +93,7 @@ function App() {
             onAddChild={() => setFormMode('add')}
             onEditRequest={() => setFormMode('edit')}
             onRemove={handleRemove}
+            onUpdateGrowth={(growth) => handleUpdateGrowth(activeBaby.id, growth)}
             key={activeBaby.id}
           />
         )}

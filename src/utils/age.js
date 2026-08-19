@@ -26,7 +26,7 @@ export function getAgeBreakdown(birthDateStr, today = new Date()) {
 
 export function formatAgeLabel({ totalDays, months, extraDays, weeks, isFuture }) {
   if (isFuture) return 'Due soon'
-  if (totalDays < 7) return totalDays <= 1 ? '1 day old' : `${totalDays} days old`
+  if (totalDays < 7) return totalDays === 0 ? 'Born today' : totalDays === 1 ? '1 day old' : `${totalDays} days old`
   if (months < 1) return weeks === 1 ? '1 week old' : `${weeks} weeks old`
 
   const monthPart = months === 1 ? '1 month' : `${months} months`

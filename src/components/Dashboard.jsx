@@ -4,8 +4,9 @@ import { getAgeBreakdown, formatAgeLabel, findStageForMonths } from '../utils/ag
 import StageDetail from './StageDetail'
 import StageBrowser from './StageBrowser'
 import ChildSwitcher from './ChildSwitcher'
+import GrowthTracker from './GrowthTracker'
 
-function Dashboard({ baby, babies, onSwitch, onAddChild, onEditRequest, onRemove }) {
+function Dashboard({ baby, babies, onSwitch, onAddChild, onEditRequest, onRemove, onUpdateGrowth }) {
   const [view, setView] = useState('now')
   const [selectedId, setSelectedId] = useState(null)
 
@@ -70,7 +71,18 @@ function Dashboard({ baby, babies, onSwitch, onAddChild, onEditRequest, onRemove
         >
           Browse all stages
         </button>
+        <button
+          type="button"
+          className={`tab-button${view === 'growth' ? ' active' : ''}`}
+          onClick={() => setView('growth')}
+        >
+          Growth
+        </button>
       </nav>
+
+      {view === 'growth' && (
+        <GrowthTracker baby={baby} entries={baby.growth ?? []} onChange={onUpdateGrowth} />
+      )}
 
       {view === 'browse' && (
         <StageBrowser
@@ -102,7 +114,7 @@ function Dashboard({ baby, babies, onSwitch, onAddChild, onEditRequest, onRemove
         </div>
       )}
 
-      {!ageInfo.isFuture && !isBeyondRange && (
+      {!ageInfo.isFuture && !isBeyondRange && view !== 'growth' && (
         <StageDetail
           stage={activeStage}
           isCurrent={activeStage?.id === currentStage?.id}
