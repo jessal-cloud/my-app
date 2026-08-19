@@ -3,6 +3,7 @@ import HomeScreen from './components/HomeScreen'
 import Dashboard from './components/Dashboard'
 import Disclaimer from './components/Disclaimer'
 import { makeId } from './utils/id'
+import { deletePhotosByBaby } from './utils/photoDb'
 import './App.css'
 
 const BABIES_KEY = 'little-steps-babies'
@@ -66,6 +67,7 @@ function App() {
     setActiveId(nextActive)
     persist(next, nextActive ?? '')
     if (!nextActive) localStorage.removeItem(ACTIVE_KEY)
+    deletePhotosByBaby(id)
   }
 
   if (!loaded) return null

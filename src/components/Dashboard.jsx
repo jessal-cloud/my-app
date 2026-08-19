@@ -5,6 +5,7 @@ import StageDetail from './StageDetail'
 import StageBrowser from './StageBrowser'
 import ChildSwitcher from './ChildSwitcher'
 import GrowthTracker from './GrowthTracker'
+import PhotoTimeline from './PhotoTimeline'
 
 function Dashboard({ baby, babies, onSwitch, onAddChild, onEditRequest, onRemove, onUpdateGrowth }) {
   const [view, setView] = useState('now')
@@ -78,11 +79,20 @@ function Dashboard({ baby, babies, onSwitch, onAddChild, onEditRequest, onRemove
         >
           Growth
         </button>
+        <button
+          type="button"
+          className={`tab-button${view === 'photos' ? ' active' : ''}`}
+          onClick={() => setView('photos')}
+        >
+          Photos
+        </button>
       </nav>
 
       {view === 'growth' && (
         <GrowthTracker baby={baby} entries={baby.growth ?? []} onChange={onUpdateGrowth} />
       )}
+
+      {view === 'photos' && <PhotoTimeline baby={baby} />}
 
       {view === 'browse' && (
         <StageBrowser
@@ -114,7 +124,7 @@ function Dashboard({ baby, babies, onSwitch, onAddChild, onEditRequest, onRemove
         </div>
       )}
 
-      {!ageInfo.isFuture && !isBeyondRange && view !== 'growth' && (
+      {!ageInfo.isFuture && !isBeyondRange && (view === 'now' || view === 'browse') && (
         <StageDetail
           stage={activeStage}
           isCurrent={activeStage?.id === currentStage?.id}
