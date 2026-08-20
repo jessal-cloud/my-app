@@ -100,7 +100,7 @@ function App() {
           />
         )}
       </main>
-      <Disclaimer />
+      {showForm && <Disclaimer />}
     </div>
   )
 }
