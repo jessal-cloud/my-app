@@ -98,6 +98,17 @@
   margin-top: -8px;
 }
 
+.passcode-note {
+  position: relative;
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-soft);
+  text-align: center;
+}
+
 .primary-button {
   margin-top: 6px;
   padding: 14px 20px;
