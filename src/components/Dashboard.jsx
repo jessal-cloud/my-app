@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { stages } from '../data/stages'
 import { getAgeBreakdown, formatAgeLabel, findStageForMonths } from '../utils/age'
 import { usePhotos } from '../hooks/usePhotos'
+import { lockApp } from '../utils/passcodeLock'
 import StageDetail from './StageDetail'
 import StageBrowser from './StageBrowser'
 import ChildSwitcher from './ChildSwitcher'
@@ -67,6 +68,9 @@ function Dashboard({ baby, babies, onSwitch, onAddChild, onEditRequest, onRemove
           </button>
           <button type="button" className="ghost-button danger" onClick={handleRemove}>
             Remove
+          </button>
+          <button type="button" className="ghost-button" onClick={lockApp} title="Lock Little Steps">
+            🔒 Lock
           </button>
         </div>
       </header>

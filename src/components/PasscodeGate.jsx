@@ -1,24 +1,12 @@
 import { useEffect, useState } from 'react'
-
-const HASH_KEY = 'little-steps-passcode-hash'
-const COOKIE_NAME = 'little-steps-unlocked'
-
-async function sha256Hex(text) {
-  const data = new TextEncoder().encode(text)
-  const digest = await crypto.subtle.digest('SHA-256', data)
-  return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, '0')).join('')
-}
-
-function hasUnlockCookie() {
-  return document.cookie.split('; ').some((c) => c.startsWith(`${COOKIE_NAME}=`))
-}
-
-function setUnlockCookie() {
-  // No expiry set — this is a session cookie: shared across every tab of this
-  // browser (unlike sessionStorage, which is tab-scoped), but cleared when the
-  // browser itself fully closes (unlike localStorage, which persists forever).
-  document.cookie = `${COOKIE_NAME}=1; path=${import.meta.env.BASE_URL}; SameSite=Lax`
-}
+import {
+  sha256Hex,
+  getPasscodeHash,
+  setPasscodeHash,
+  clearPasscodeHash,
+  isUnlocked,
+  markUnlocked,
+} from '../utils/passcodeLock'
 
 function PasscodeGate({ children }) {
   const [checking, setChecking] = useState(true)
@@ -29,9 +17,9 @@ function PasscodeGate({ children }) {
   const [error, setError] = useState('')
 
   useEffect(() => {
-    const hash = localStorage.getItem(HASH_KEY)
+    const hash = getPasscodeHash()
     setStoredHash(hash)
-    if (hash && hasUnlockCookie()) {
+    if (hash && isUnlocked()) {
       setUnlocked(true)
     }
     setChecking(false)
@@ -49,8 +37,8 @@ function PasscodeGate({ children }) {
     }
     setError('')
     const hash = await sha256Hex(value)
-    localStorage.setItem(HASH_KEY, hash)
-    setUnlockCookie()
+    setPasscodeHash(hash)
+    markUnlocked()
     setUnlocked(true)
   }
 
@@ -59,7 +47,7 @@ function PasscodeGate({ children }) {
     const hash = await sha256Hex(value)
     if (hash === storedHash) {
       setError('')
-      setUnlockCookie()
+      markUnlocked()
       setUnlocked(true)
     } else {
       setError('Incorrect passcode. Try again.')
@@ -73,7 +61,7 @@ function PasscodeGate({ children }) {
         "Reset your passcode? Your baby profiles, photos and growth entries won't be deleted — you'll just set a new passcode.",
       )
     ) {
-      localStorage.removeItem(HASH_KEY)
+      clearPasscodeHash()
       setStoredHash(null)
       setValue('')
       setConfirmValue('')
