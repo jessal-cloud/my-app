@@ -8,6 +8,8 @@ import {
   markUnlocked,
 } from '../utils/passcodeLock'
 
+const MIN_PASSCODE_LENGTH = 8
+
 function PasscodeGate({ children }) {
   const [checking, setChecking] = useState(true)
   const [unlocked, setUnlocked] = useState(false)
@@ -27,8 +29,8 @@ function PasscodeGate({ children }) {
 
   async function handleSetup(e) {
     e.preventDefault()
-    if (value.trim().length < 4) {
-      setError('Choose a passcode of at least 4 characters.')
+    if (value.trim().length < MIN_PASSCODE_LENGTH) {
+      setError(`Choose a passcode of at least ${MIN_PASSCODE_LENGTH} characters.`)
       return
     }
     if (value !== confirmValue) {
@@ -85,7 +87,7 @@ function PasscodeGate({ children }) {
             : 'Enter the passcode you set for Little Steps.'}
         </p>
 
-        <form className="home-form" onSubmit={isSetup ? handleSetup : handleUnlock}>
+        <form className="home-form" onSubmit={isSetup ? handleSetup : handleUnlock} noValidate>
           <label className="field">
             <span>{isSetup ? 'Choose a passcode' : 'Passcode'}</span>
             <input
@@ -94,7 +96,9 @@ function PasscodeGate({ children }) {
               onChange={(e) => setValue(e.target.value)}
               autoFocus
               autoComplete="off"
+              minLength={isSetup ? MIN_PASSCODE_LENGTH : undefined}
             />
+            {isSetup && <span className="field-hint">Use at least {MIN_PASSCODE_LENGTH} characters.</span>}
           </label>
 
           {isSetup && (

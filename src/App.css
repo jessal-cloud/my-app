@@ -91,6 +91,12 @@
   border-color: var(--coral-deep);
 }
 
+.field-hint {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-soft);
+}
+
 .form-error {
   color: var(--coral-deep);
   font-size: 13px;
